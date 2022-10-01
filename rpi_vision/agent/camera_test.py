@@ -1,12 +1,15 @@
 import time
-import picamera
+from picamera2 import Picamera2, Preview
 import os
 
-camera = picamera.PiCamera()
+camera = Picamera2()
 try:
-    camera.framerate = 60
-    camera.resolution = (320, 240)
-    camera.start_preview()
+    camera.start_preview(Preview.QTGL)
+    preview_config = camera.create_preview_configuration(
+        main={"size": (320, 240)}
+    )
+    camera.configure(preview_config)
+    camera.start()
     time.sleep(60)
     camera.stop_preview()
 finally:

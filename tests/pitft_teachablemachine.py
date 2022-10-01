@@ -11,9 +11,6 @@ import subprocess
 CONFIDENCE_THRESHOLD = 0.5   # at what confidence level do we say we detected a thing
 PERSISTANCE_THRESHOLD = 0.25  # what percentage of the time we have to have seen a thing
 
-os.environ['SDL_FBDEV'] = "/dev/fb1"
-os.environ['SDL_VIDEODRIVER'] = "fbcon"
-
 # App
 from rpi_vision.agent.capture import PiCameraStream
 from rpi_vision.models.teachablemachine import TeachableMachine
@@ -25,7 +22,7 @@ logging.getLogger().setLevel(logging.INFO)
 pygame.init()
 screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
 
-capture_manager = PiCameraStream(resolution=(screen.get_width(), screen.get_height()), rotation=180, preview=False)
+capture_manager = PiCameraStream(resolution=(screen.get_width(), screen.get_height()), preview=False)
 
 def parse_args():
     parser = argparse.ArgumentParser()
