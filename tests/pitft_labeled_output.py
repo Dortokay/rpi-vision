@@ -100,8 +100,6 @@ def main(args):
             buffer.get_width(),
             buffer.get_height()
         )
-        print(img.get_width(), img.get_height())
-        print(cropped_region)
 
         # draw it!
         buffer.blit(img, (0, 0), cropped_region)
