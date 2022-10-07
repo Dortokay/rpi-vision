@@ -71,16 +71,16 @@ def main(args):
         pass
     pygame.display.update()
 
-    # use the default font
-    smallfont = pygame.font.Font(None, 24)
-    medfont = pygame.font.Font(None, 36)
-    bigfont = pygame.font.Font(None, 48)
-
-    model = MobileNetV2Base(include_top=args.include_top)
-
     # Let's figure out the scale size first for non-square images
     scale = max(buffer.get_height() // capture_manager.resolution[1], 1)
     scaled_resolution = tuple([x * scale for x in capture_manager.resolution])
+
+    # use the default font, but scale it
+    smallfont = pygame.font.Font(None, 24 * scale)
+    medfont = pygame.font.Font(None, 36 * scale)
+    bigfont = pygame.font.Font(None, 48 * scale)
+
+    model = MobileNetV2Base(include_top=args.include_top)
 
     capture_manager.start()
     while not capture_manager.stopped:
