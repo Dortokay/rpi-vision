@@ -35,7 +35,7 @@ class PiCameraStream(object):
         self._stream = "main"
         if preview:
             print('starting camera preview')
-            self.camera.start_preview(Preview.QTGL)
+            self.camera.start_preview()
 
     def render_overlay(self):
         pass
@@ -57,7 +57,7 @@ class PiCameraStream(object):
                 return
 
     def read(self):
-        stride = self.camera.stream_configuration(self._stream)["stride"]
+        #stride = self.camera.stream_configuration(self._stream)["stride"]
         return self.frame[0:224, 48:272, :]  # crop the 240 x 320 frame
 
     def stop(self):

@@ -4,7 +4,7 @@ import os
 
 camera = Picamera2()
 try:
-    camera.start_preview(Preview.QTGL)
+    camera.start_preview()
     preview_config = camera.create_preview_configuration(
         main={"size": (320, 240)}
     )
