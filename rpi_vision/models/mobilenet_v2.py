@@ -6,9 +6,7 @@ import numpy as np
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input, decode_predictions
 
-
 logger = logging.getLogger(__name__)
-
 
 class MobileNetV2Base():
     def __init__(self,
@@ -24,7 +22,7 @@ class MobileNetV2Base():
 
         self.input_shape = input_shape
         self.include_top = include_top
-        self.model_base = tf.keras.applications.mobilenet_v2.MobileNetV2(
+        self.model_base = MobileNetV2(
             alpha=alpha,
             classes=classes,
             include_top=include_top,
@@ -44,9 +42,6 @@ class MobileNetV2Base():
         return decoded_features
 
     def tflite_convert_from_keras_model_file(self, output_dir='includes/', output_filename='mobilenet_v2_imagenet.tflite', keras_model_file='includes/mobilenet_v2_imagenet.h5'):
-        # @todo TFLiteConverter.from_keras_model() is only available in the tf-nightly-2.0-preview build right now
-        # https://groups.google.com/a/tensorflow.org/forum/#!searchin/developers/from_keras_model%7Csort:date/developers/Mx_EaHM1X2c/rx8Tm-24DQAJ
-        # converter = tf.lite.TFLiteConverter.from_keras_model(self.model_base)
         converter = tf.lite.TFLiteConverter.from_keras_model_file(
             keras_model_file)
         tflite_model = converter.convert()
@@ -57,9 +52,6 @@ class MobileNetV2Base():
         return tflite_model
 
     def tflite_convert_from_keras_model(self, output_dir='includes/', output_filename='mobilenet_v2_imagenet.tflite'):
-        # @todo TFLiteConverter.from_keras_model() is only available in the tf-nightly-2.0-preview build right now
-        # https://groups.google.com/a/tensorflow.org/forum/#!searchin/developers/from_keras_model%7Csort:date/developers/Mx_EaHM1X2c/rx8Tm-24DQAJ
-        # converter = tf.lite.TFLiteConverter.from_keras_model(self.model_base)
         converter = tf.lite.TFLiteConverter.from_keras_model(self.model_base)
         tflite_model = converter.convert()
         if output_dir and output_filename:

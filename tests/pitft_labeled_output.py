@@ -50,10 +50,7 @@ last_spoken = None
 def main(args):
     global last_spoken, capture_manager
 
-    if screen.get_width() == screen.get_height() or args.rotation in (0, 180):
-        capture_manager = PiCameraStream(resolution=(max(320, screen.get_width()), max(240, screen.get_height())), preview=False)
-    else:
-        capture_manager = PiCameraStream(resolution=(max(240, screen.get_height()), max(320, screen.get_width())), preview=False)
+    capture_manager = PiCameraStream(preview=False)
 
     if args.rotation in (0, 180):
         buffer = pygame.Surface((screen.get_width(), screen.get_height()))
@@ -67,8 +64,9 @@ def main(args):
         splash = pygame.transform.rotate(splash, args.rotation)
         # Scale the square image up to the smaller of the width or height
         splash = pygame.transform.scale(splash, (min(screen.get_width(), screen.get_height()), min(screen.get_width(), screen.get_height())))
-        screen.blit(splash, ((screen.get_width() / 2) - (splash.get_width() / 2),
-                    (screen.get_height() / 2) - (splash.get_height() / 2)))
+        # Center the image
+        screen.blit(splash, ((screen.get_width() - splash.get_width()) // 2, (screen.get_height() - splash.get_height()) // 2))
+
     except pygame.error:
         pass
     pygame.display.update()
@@ -80,6 +78,10 @@ def main(args):
 
     model = MobileNetV2Base(include_top=args.include_top)
 
+    # Let's figure out the scale size first for non-square images
+    scale = max(buffer.get_height() // capture_manager.resolution[1], 1)
+    scaled_resolution = tuple([x * scale for x in capture_manager.resolution])
+
     capture_manager.start()
     while not capture_manager.stopped:
         if capture_manager.frame is None:
@@ -90,8 +92,19 @@ def main(args):
         previewframe = np.ascontiguousarray(np.flip(capture_manager.frame, 2))
         # make it an image
         img = pygame.image.frombuffer(previewframe, capture_manager.resolution, 'RGB')
+        img = pygame.transform.scale(img, scaled_resolution)
+
+        cropped_region = (
+            (img.get_width() - buffer.get_width()) // 2,
+            (img.get_height() - buffer.get_height()) // 2,
+            buffer.get_width(),
+            buffer.get_height()
+        )
+        print(img.get_width(), img.get_height())
+        print(cropped_region)
+
         # draw it!
-        buffer.blit(img, (0, 0))
+        buffer.blit(img, (0, 0), cropped_region)
 
         timestamp = time.monotonic()
         if args.tflite:
