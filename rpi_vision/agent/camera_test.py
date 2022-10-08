@@ -1,6 +1,5 @@
 import time
-from picamera2 import Picamera2, Preview
-import os
+from picamera2 import Picamera2
 
 camera = Picamera2()
 try:
