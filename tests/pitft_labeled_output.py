@@ -1,4 +1,3 @@
-# Python
 import time
 import logging
 import argparse
@@ -6,7 +5,6 @@ import pygame
 import os
 import sys
 import numpy as np
-import subprocess
 import signal
 
 CONFIDENCE_THRESHOLD = 0.5   # at what confidence level do we say we detected a thing
@@ -17,7 +15,7 @@ def dont_quit(signal, frame):
 signal.signal(signal.SIGHUP, dont_quit)
 
 # App
-from rpi_vision.agent.capture import PiCameraStream
+from rpi_vision.agent.capturev2 import PiCameraStream
 from rpi_vision.models.mobilenet_v2 import MobileNetV2Base
 
 logging.basicConfig()

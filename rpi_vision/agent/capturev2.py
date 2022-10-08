@@ -1,5 +1,5 @@
 import logging
-from picamera2 import Picamera2, Preview
+from picamera2 import Picamera2
 from libcamera import Transform
 from threading import Thread
 
@@ -17,6 +17,7 @@ class PiCameraStream(object):
 
     def __init__(self, *, resolution=(320, 240), vflip=False, hflip=False, preview=True):
         self.camera = Picamera2()
+
         # Disable Picamera2 Debugging
         logging.getLogger("picamera2").setLevel(logging.INFO)
 
@@ -58,7 +59,7 @@ class PiCameraStream(object):
 
     def read(self):
         #stride = self.camera.stream_configuration(self._stream)["stride"]
-        return self.frame[0:224, 48:272, :]  # crop the 240 x 320 frame
+        return self.frame[8:232, 48:272, :]  # crop the 240 x 320 frame to TensorFlow Size (224 x 224)
 
     def stop(self):
         self.stopped = True
