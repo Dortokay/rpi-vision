@@ -17,10 +17,9 @@ with open('HISTORY.rst') as history_file:
 
 common_requirements = []
 
-# tensorflow 2.0 wheel has not been released for Raspbian yet
 trainer_requirements = [
     'ansible==2.8.1',
-    'tensorflow==2.0.0-beta0',
+    'tensorflow>=2.1.0',
     'tensorflow-datasets==1.0.2',
     'tensorflow-hub==0.5.0'
 ]
@@ -28,16 +27,25 @@ trainer_requirements = list(map(
     lambda x: x + ';platform_machine=="x86_64"', trainer_requirements
 ))
 
-rpi_requirements = [
+rpi32_requirements = [
+    'picamera==1.13.0',
+    'Pillow==6.0.0',
+    'numpy==1.17.1',
+    'pygame==1.9.6'
+]
+rpi32_requirements = list(map(
+    lambda x: x + ';platform_machine=="armv7l"', rpi32_requirements))
+
+rpi64_requirements = [
     'picamera2>=0.3.3',
     'Pillow>=8.1.2',
     'numpy>=1.23.3',
     'pygame>=2.1.2'
 ]
-rpi_requirements = list(map(
-    lambda x: x + ';platform_machine=="armv7l"', rpi_requirements))
+rpi64_requirements = list(map(
+    lambda x: x + ';platform_machine=="aarch64"', rpi64_requirements))
 
-requirements = common_requirements + trainer_requirements + rpi_requirements
+requirements = common_requirements + trainer_requirements + rpi32_requirements + rpi64_requirements
 
 setup_requirements = ['pytest-runner', ]
 
@@ -133,7 +141,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/makermelissa/rpi-vision',
-    version='0.1.0',
+    url='https://github.com/adafruit/rpi-vision',
+    version='1.0.0',
     zip_safe=False,
 )
