@@ -1,4 +1,6 @@
-# Python
+# SPDX-FileCopyrightText: 2019 Leigh Johnson
+#
+# SPDX-License-Identifier: MIT
 import logging
 import os
 from time import time

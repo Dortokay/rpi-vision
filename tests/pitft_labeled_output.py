@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2021 Limor Fried/ladyada for Adafruit Industries
+# SPDX-FileCopyrightText: 2021 Melissa LeBlanc-Williams for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
 import time
 import logging
 import argparse

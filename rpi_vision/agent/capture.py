@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2019 Leigh Johnson
+# SPDX-FileCopyrightText: 2022 Melissa LeBlanc-Williams for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 import numpy as np

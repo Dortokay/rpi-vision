@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2019 Leigh Johnson
+#
+# SPDX-License-Identifier: MIT
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from unittest import TestCase
