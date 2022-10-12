@@ -3,6 +3,7 @@ import logging
 import argparse
 import pygame
 import os
+import subprocess
 import sys
 import numpy as np
 import signal
@@ -155,7 +156,7 @@ def main(args):
                 buffer.blit(detecttext_surface, detecttext_surface.get_rect(center=detecttext_position))
 
                 if persistant_obj and last_spoken != detecttext:
-                    os.system('echo %s | festival --tts & ' % detecttext)
+                    subprocess.call(f"echo {detecttext} | festival --tts &", shell=True)
                     last_spoken = detecttext
                 break
         else:
