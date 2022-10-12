@@ -25,7 +25,7 @@ class PiCameraStream(object):
         stream_config = self.camera.create_video_configuration(
             main={
                 "size": resolution,
-                "format": "RGB888"
+                "format": "BGR888"
             },
             transform=stream_transform
         )

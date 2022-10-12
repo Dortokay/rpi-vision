@@ -87,7 +87,7 @@ def main(args):
         buffer.fill((0,0,0))
         frame = capture_manager.read()
         # get the raw data frame & swap red & blue channels
-        previewframe = np.ascontiguousarray(np.flip(capture_manager.frame, 2))
+        previewframe = np.ascontiguousarray(capture_manager.frame)
         # make it an image
         img = pygame.image.frombuffer(previewframe, capture_manager.resolution, 'RGB')
         img = pygame.transform.scale(img, scaled_resolution)
