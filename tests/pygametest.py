@@ -1,12 +1,13 @@
+# SPDX-FileCopyrightText: 2021 Limor Fried/ladyada for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
 import pygame
 import os
 import time
 from rpi_vision.agent.capture import PiCameraStream
 import numpy as np
 
-os.environ['SDL_FBDEV'] = "/dev/fb1"
-os.environ['SDL_VIDEODRIVER'] = "fbcon"
-capture_manager = PiCameraStream(resolution=(320, 320), rotation=180, preview=False)
+capture_manager = PiCameraStream(resolution=(320, 320), preview=False)
 
 pygame.init()
 screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)

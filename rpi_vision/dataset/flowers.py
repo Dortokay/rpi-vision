@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2019 Leigh Johnson
+#
+# SPDX-License-Identifier: MIT
 
 # Example here:
 # https://www.tensorflow.org/beta/tutorials/load_data/images#setup

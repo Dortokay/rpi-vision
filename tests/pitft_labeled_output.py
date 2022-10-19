@@ -1,26 +1,27 @@
-# Python
+# SPDX-FileCopyrightText: 2021 Limor Fried/ladyada for Adafruit Industries
+# SPDX-FileCopyrightText: 2021 Melissa LeBlanc-Williams for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
 import time
 import logging
 import argparse
 import pygame
 import os
+import subprocess
 import sys
 import numpy as np
-import subprocess
 import signal
 
 CONFIDENCE_THRESHOLD = 0.5   # at what confidence level do we say we detected a thing
 PERSISTANCE_THRESHOLD = 0.25  # what percentage of the time we have to have seen a thing
-
-os.environ['SDL_FBDEV'] = "/dev/fb1"
-os.environ['SDL_VIDEODRIVER'] = "fbcon"
 
 def dont_quit(signal, frame):
    print('Caught signal: {}'.format(signal))
 signal.signal(signal.SIGHUP, dont_quit)
 
 # App
-from rpi_vision.agent.capture import PiCameraStream
+from rpi_vision.agent.capturev2 import PiCameraStream
 from rpi_vision.models.mobilenet_v2 import MobileNetV2Base
 
 logging.basicConfig()
@@ -53,10 +54,7 @@ last_spoken = None
 def main(args):
     global last_spoken, capture_manager
 
-    if screen.get_width() == screen.get_height() or args.rotation in (0, 180):
-        capture_manager = PiCameraStream(resolution=(max(320, screen.get_width()), max(240, screen.get_height())), rotation=180, preview=False)
-    else:
-        capture_manager = PiCameraStream(resolution=(max(240, screen.get_height()), max(320, screen.get_width())), rotation=180, preview=False)
+    capture_manager = PiCameraStream(preview=False)
 
     if args.rotation in (0, 180):
         buffer = pygame.Surface((screen.get_width(), screen.get_height()))
@@ -68,31 +66,47 @@ def main(args):
     try:
         splash = pygame.image.load(os.path.dirname(sys.argv[0])+'/bchatsplash.bmp')
         splash = pygame.transform.rotate(splash, args.rotation)
-        screen.blit(splash, ((screen.get_width() / 2) - (splash.get_width() / 2),
-                    (screen.get_height() / 2) - (splash.get_height() / 2)))
+        # Scale the square image up to the smaller of the width or height
+        splash = pygame.transform.scale(splash, (min(screen.get_width(), screen.get_height()), min(screen.get_width(), screen.get_height())))
+        # Center the image
+        screen.blit(splash, ((screen.get_width() - splash.get_width()) // 2, (screen.get_height() - splash.get_height()) // 2))
+
     except pygame.error:
         pass
     pygame.display.update()
 
-    # use the default font
-    smallfont = pygame.font.Font(None, 24)
-    medfont = pygame.font.Font(None, 36)
-    bigfont = pygame.font.Font(None, 48)
+    # Let's figure out the scale size first for non-square images
+    scale = max(buffer.get_height() // capture_manager.resolution[1], 1)
+    scaled_resolution = tuple([x * scale for x in capture_manager.resolution])
+
+    # use the default font, but scale it
+    smallfont = pygame.font.Font(None, 24 * scale)
+    medfont = pygame.font.Font(None, 36 * scale)
+    bigfont = pygame.font.Font(None, 48 * scale)
 
     model = MobileNetV2Base(include_top=args.include_top)
-    capture_manager.start()
 
+    capture_manager.start()
     while not capture_manager.stopped:
         if capture_manager.frame is None:
             continue
         buffer.fill((0,0,0))
         frame = capture_manager.read()
         # get the raw data frame & swap red & blue channels
-        previewframe = np.ascontiguousarray(np.flip(np.array(capture_manager.frame), 2))
+        previewframe = np.ascontiguousarray(capture_manager.frame)
         # make it an image
-        img = pygame.image.frombuffer(previewframe, capture_manager.camera.resolution, 'RGB')
+        img = pygame.image.frombuffer(previewframe, capture_manager.resolution, 'RGB')
+        img = pygame.transform.scale(img, scaled_resolution)
+
+        cropped_region = (
+            (img.get_width() - buffer.get_width()) // 2,
+            (img.get_height() - buffer.get_height()) // 2,
+            buffer.get_width(),
+            buffer.get_height()
+        )
+
         # draw it!
-        buffer.blit(img, (0, 0))
+        buffer.blit(img, (0, 0), cropped_region)
 
         timestamp = time.monotonic()
         if args.tflite:
@@ -147,7 +161,7 @@ def main(args):
                 buffer.blit(detecttext_surface, detecttext_surface.get_rect(center=detecttext_position))
 
                 if persistant_obj and last_spoken != detecttext:
-                    os.system('echo %s | festival --tts & ' % detecttext)
+                    subprocess.call(f"echo {detecttext} | festival --tts &", shell=True)
                     last_spoken = detecttext
                 break
         else:

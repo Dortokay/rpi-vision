@@ -1,13 +1,11 @@
-# SPDX-FileCopyrightText: 2019 Leigh Johnson
-# SPDX-FileCopyrightText: 2022 Melissa LeBlanc-Williams for Adafruit Industries
+# SPDX-FileCopyrightText: 2021 Melissa LeBlanc-Williams for Adafruit Industries
 #
 # SPDX-License-Identifier: MIT
 
-from picamera.array import PiRGBArray
-from picamera import PiCamera
-import numpy as np
+import logging
+from picamera2 import Picamera2
+from libcamera import Transform
 from threading import Thread
-
 
 class PiCameraStream(object):
     """
@@ -22,21 +20,24 @@ class PiCameraStream(object):
     """
 
     def __init__(self, *, resolution=(320, 240), vflip=False, hflip=False, preview=True):
-        self.camera = PiCamera()
-        self.camera.resolution = resolution
-        self.camera.framerate = 24
-        self.camera.vflip = vflip
-        self.camera.hflip = hflip
-        self.camera.rotation = 0
+        self.camera = Picamera2()
 
-        self.data_container = PiRGBArray(self.camera, size=resolution)
+        # Disable Picamera2 Debugging
+        logging.getLogger("picamera2").setLevel(logging.INFO)
 
-        self.stream = self.camera.capture_continuous(
-            self.data_container, format="bgr", use_video_port=True
+        stream_transform = Transform(hflip=int(hflip), vflip=int(vflip))
+        stream_config = self.camera.create_video_configuration(
+            main={
+                "size": resolution,
+                "format": "BGR888"
+            },
+            transform=stream_transform
         )
+        self.camera.configure(stream_config)
 
         self.frame = None
         self.stopped = False
+        self._stream = "main"
         if preview:
             print('starting camera preview')
             self.camera.start_preview()
@@ -47,23 +48,27 @@ class PiCameraStream(object):
     def start(self):
         """Begin handling frame stream in a separate thread"""
         Thread(target=self.flush, args=()).start()
+        self.camera.start()
         return self
 
     def flush(self):
         # looping until self.stopped flag is flipped
         # for now, grab the first frame in buffer, then empty buffer
-        for f in self.stream:
-            self.frame = f.array
-            self.data_container.truncate(0)
+        while True:
+            self.frame = self.camera.capture_array(self._stream)
 
             if self.stopped:
-                self.stream.close()
-                self.data_container.close()
                 self.camera.close()
                 return
 
     def read(self):
-        return self.frame[0:224, 48:272, :]  # crop the frame
+        #stride = self.camera.stream_configuration(self._stream)["stride"]
+        return self.frame[8:232, 48:272, :]  # crop the 240 x 320 frame to TensorFlow Size (224 x 224)
 
     def stop(self):
         self.stopped = True
+        self.camera.stop()
+
+    @property
+    def resolution(self):
+        return self.camera.stream_configuration(self._stream)["size"]

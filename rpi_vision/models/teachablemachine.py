@@ -1,4 +1,9 @@
-# Python
+# SPDX-FileCopyrightText: 2019 Leigh Johnson
+# SPDX-FileCopyrightText: 2021 Andrew Reusch for Adafruit Industries
+# SPDX-FileCopyrightText: 2022 Melissa LeBlanc-Williams for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
 import logging
 import os.path
 import shutil
@@ -73,9 +78,6 @@ class TeachableMachine():
         return [decoded]
 
     def tflite_convert_from_keras_model_file(self, output_dir='includes/', output_filename='mobilenet_v2_imagenet.tflite', keras_model_file='includes/mobilenet_v2_imagenet.h5'):
-        # @todo TFLiteConverter.from_keras_model() is only available in the tf-nightly-2.0-preview build right now
-        # https://groups.google.com/a/tensorflow.org/forum/#!searchin/developers/from_keras_model%7Csort:date/developers/Mx_EaHM1X2c/rx8Tm-24DQAJ
-        # converter = tf.lite.TFLiteConverter.from_keras_model(self.model_base)
         converter = tf.lite.TFLiteConverter.from_keras_model_file(
             keras_model_file)
         tflite_model = converter.convert()
@@ -86,9 +88,6 @@ class TeachableMachine():
         return tflite_model
 
     def tflite_convert_from_keras_model(self, output_dir='includes/', output_filename='mobilenet_v2_imagenet.tflite'):
-        # @todo TFLiteConverter.from_keras_model() is only available in the tf-nightly-2.0-preview build right now
-        # https://groups.google.com/a/tensorflow.org/forum/#!searchin/developers/from_keras_model%7Csort:date/developers/Mx_EaHM1X2c/rx8Tm-24DQAJ
-        # converter = tf.lite.TFLiteConverter.from_keras_model(self.model_base)
         converter = tf.lite.TFLiteConverter.from_keras_model(self.model_base)
         tflite_model = converter.convert()
         if output_dir and output_filename:
@@ -110,14 +109,14 @@ class TeachableMachine():
         self.tflite_interpreter = tf.lite.Interpreter(
             model_path=model_path)
         self.tflite_interpreter.allocate_tensors()
-        logger.info('Initialized tflite Python interpreter \n',
+        logger.info('Initialized tflite Python interpreter \n%s',
                     self.tflite_interpreter)
 
         self.tflite_input_details = self.tflite_interpreter.get_input_details()
-        logger.info('tflite input details \n', self.tflite_input_details)
+        logger.info('tflite input details \n%s', self.tflite_input_details)
 
         self.tflite_output_details = self.tflite_interpreter.get_output_details()
-        logger.info('tflite output details \n',
+        logger.info('tflite output details \n%s',
                     self.tflite_output_details)
 
         return self.tflite_interpreter
