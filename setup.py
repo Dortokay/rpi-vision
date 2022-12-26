@@ -35,7 +35,8 @@ trainer_requirements = list(map(
 rpi32_requirements = [
     'picamera==1.13.0',
     'Pillow==6.0.0',
-    'numpy==1.17.1'
+    'numpy==1.17.1',
+    'pygame==2.1.2'
 ]
 rpi32_requirements = list(map(
     lambda x: x + ';platform_machine=="armv7l"', rpi32_requirements))
@@ -43,7 +44,8 @@ rpi32_requirements = list(map(
 rpi64_requirements = [
     'picamera2>=0.3.3',
     'Pillow>=8.1.2',
-    'numpy>=1.23.3'
+    'numpy>=1.23.3',
+    'pygame==2.1.2'
 ]
 rpi64_requirements = list(map(
     lambda x: x + ';platform_machine=="aarch64"', rpi64_requirements))
